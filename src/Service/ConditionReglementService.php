@@ -5,7 +5,7 @@ namespace App\Service;
 use DateTime;
 use Exception;
 
-class ConditionsReglement
+class ConditionReglementService
 {
     const FM15 = 15;
     const FM30 = 30;
