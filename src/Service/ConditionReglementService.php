@@ -4,16 +4,23 @@ namespace App\Service;
 
 use DateTime;
 use Exception;
-use Symfony\Component\Validator\Constraints\Date;
 
 
 class ConditionReglementService extends DateTime
 {
-
+    /** CR15NET => Condition de règlement 15 Jours NET  */
     const CR15NET = array('count'=> 15 , 'name' => '15 Jours NET');
+
+    /** CR30NET => Condition de règlement 30 Jours NET  */
     const CR30NET = array('count'=> 30, 'name' => '30 Jours NET');
+
+    /** CR45NET => Condition de règlement 45 Jours NET  */
     const CR45NET = array('count'=> 45, 'name' => '45 Jours NET');
+
+    /** CR60NET => Condition de règlement 60 Jours NET  */
     const CR60NET = array('count'=> 60, 'name' => '60 Jours NET');
+
+    /** CR30FDM => Condition de règlement 30 Jours NET calcul fin de mois  */
     const CR30FDM = array('count'=> 30, 'name' => '30 Jours Fin de mois');
     const CR45FDM = array('count'=> 45, 'name' => '45 Jours Fin de mois');
     const CR30FDM10 = array('count'=> 30, 'name' => '30 Jours Fin de mois le 10', 'dayEndMonth' => 10 );
@@ -37,7 +44,9 @@ class ConditionReglementService extends DateTime
     {
         $conditionReglement = $condition;   // pour conserver la variable $condition d'origine
         $condition = $this->getNbJourOfConst($condition);
+        $lastDay = $this->getDayEndMonthConst($conditionReglement);
         $date = new DateTime($date);
+
 
 
         /**
@@ -45,37 +54,53 @@ class ConditionReglementService extends DateTime
          * on affecte la date de fin de mois comme date de départ pour l'ajout du nb de jour
          */
         if (str_starts_with($conditionReglement, 'FDM')) {
-            $lastDayOfMonth = $date->format('Y-m-t');
-            $date = new DateTime($lastDayOfMonth);
+            $date = new DateTime($date->format('Y-m-t'));
+            return $this->addDays($date, $condition);
         }
         /**
-         * si un jour de fin de mois de la condition de règlement est renseigné dans la constante,
-         * On crée une date de contrôle avec le jour de fin de mois et le mois + année de la variable date
+         * Si le délai de paiement est calculé avant le calcul FDM ex: 30 Jours FDM ou 30 Jours FDM le 15
+         *
          */
-        $lastDay = $this->getDayEndMonthConst($conditionReglement);
 
-        if (isset($lastDay) && $lastDay !== 'Aucune condition valable')
+        if (preg_match('/CR\d{1,2}FDM/',$conditionReglement))
         {
-            var_dump($lastDay);
-            $checkDateEndOfMonth = new DateTime($date->format('Y-m-'.$lastDay)) ;
-            if ($checkDateEndOfMonth >= $date) {    //  si la date de fin de mois de la condition de règlement sur le mois en cours n'est pas passée
+            $date = $this->addDays($date, $condition);
 
-                $date = $checkDateEndOfMonth;    // alors la date de base de calcul = jour de FDM de la condition sur le mois du document
-                var_dump($checkDateEndOfMonth);
-            } else {
-                $date = new DateTime($checkDateEndOfMonth->format('Y-m-d'));
-                $date->modify('+1 month');   // Sinon la date de base de calcul = jour de FDM de la condition sur le mois m+1 du document
-                var_dump($date);
+            if (isset($lastDay) && $lastDay !== 'Aucune condition valable') // Si la date de FDM est != du mois civil
+            {
+                $date = $this-> calcDayOfEndMonth($date,$lastDay);
+            }else{
+                $date = new DateTime($date->format('Y-m-t')); // retourne le dernier jour du mois civil
             }
         }
 
-        return $this->addDays($date, $condition);
-
-        if (preg_match('/CR\d{1,2}FDM',$conditionReglement))
+        /**
+         * si le délai de paiement est calculé en jours NET
+         */
+        if (preg_match('/CR\SNET/',$conditionReglement))
         {
-
+            return $this->addDays($date, $condition);
         }
+        return $date;
+    }
 
+
+    /**
+     * si un jour de fin de mois != du mois civil est renseigné dans la constante,
+     * On crée une date de contrôle avec le jour renseigné et le mois + année de la variable date
+     * @throws Exception
+     */
+    public function calcDayOfEndMonth($date, $lastDay){
+
+        $checkDateEndOfMonth = new DateTime($date->format('Y-m-'.$lastDay)) ;
+        if ($checkDateEndOfMonth >= $date) {    //  si la date de fin de mois de la condition de règlement sur le mois en cours n'est pas passée
+            $date = $checkDateEndOfMonth;    // alors la date de base de calcul = jour de FDM de la condition sur le mois du document
+            return $date;
+        } else {
+            $date = new DateTime($checkDateEndOfMonth->format('Y-m-d'));
+            $date->modify('+1 month');   // Sinon la date de base de calcul = jour de FDM de la condition sur le mois m+1 du document
+            return $date;
+        }
     }
 
     /**

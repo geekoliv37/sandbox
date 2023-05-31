@@ -10,9 +10,10 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class HomeController extends AbstractController
 {
-    #[Route('/', name: 'app_home', methods: ['GET'])]
+    #[Route('/', name: 'app_home', methods: ['GET','POST'])]
     public function index(ConditionReglementService $conditionReglementService, Request $request): Response
     {
+        dd($request->get('date'));
         $date = $request->query->get('date');
         $condition = $request->query->get('condition');
         $dateEnd = $conditionReglementService->getDateEnd( $date, $condition);
