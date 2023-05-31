@@ -8,8 +8,65 @@
     .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
 </style>
 
-<div class="example-wrapper">
+
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarColor01">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link " href="#">Home
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Features</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#">Pricing</a>
+                    </li>
+
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+
+    <div class="example-wrapper">
     <h1>Bienvenue dans le bac à sable</h1>
 
+        <div class="form-group">
+            <label class="col-form-label ml-4 mt-4" for="inputDefault">Date de facture</label>
+            <input type="date" class="form-control" placeholder="Date de facture" id="inputdate">
+        </div>
+
+        <div class="form-group">
+            <label for="exampleSelect1" class="form-label mt-4 ml-4">Conditions de réglement</label>
+            <select class="form-select" id="exampleSelect1">
+                <option>CR15NET</option>
+                <option>CR30NET</option>
+                <option>CR45NET</option>
+                <option>CR60NET</option>
+                <option>CR30FDM</option>
+                <option>CR45FDM</option>
+                <option>CR30FDM10</option>
+                <option>CR30FDM15</option>
+                <option>FDM15</option>
+                <option>FDM30</option>
+                <option>FDM45</option>
+            </select>
+        </div>
+        <button type="button" class="btn btn-primary mb-4 ml-4 mt-4">Calculer</button>
+        <div class="form-group">
+            <fieldset>
+                <label class="form-label mt-4" for="readOnlyInput">Date d'échéance</label>
+                <input class="form-control" id="dateEcheance" type="text" placeholder="Date d'échéance" readonly="">
+            </fieldset>
+        </div>
+
 </div>
+    <script src="script.js"></script>
 {% endblock %}
