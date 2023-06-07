@@ -19,7 +19,16 @@ class HomeController extends AbstractController
         //$dateEnd = $conditionReglementService->getDateEnd($date, $condition);
         $dateEnd = $conditionReglementService->getDateEnd( $data["date"], $data["condition"]);
 
-        dd($dateEnd);
+        $success = ['success' => $dateEnd];
+        $error =
+            [
+            'error_condition' => 'La condition de règlement n\'existe pas',
+            'error_format_date' => 'Le format de date est incorrect',
+            'error_invalid_date' => 'La date renseignée n\'existe pas'
+        ];
+        dump($success);
+        dd($error);
+        //$result = json_encode()
         return $this->render('home/index.html.twig', [
             'controller_name' => 'HomeController',
             'dateEnd' => $dateEnd,
