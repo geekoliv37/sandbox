@@ -9,8 +9,14 @@ use Exception;
 
 class ConditionReglementService extends DateTime
 {
+    /** CR10NET => Condition de règlement 10 Jours NET  */
+    const CR10NET = array('count' => 10, 'name' => '10 Jours NET');
+
     /** CR15NET => Condition de règlement 15 Jours NET  */
     const CR15NET = array('count' => 15, 'name' => '15 Jours NET');
+
+    /** CR20NET => Condition de règlement 20 Jours NET  */
+    const CR20NET = array('count' => 20, 'name' => '20 Jours NET');
 
     /** CR30NET => Condition de règlement 30 Jours calendaires  */
     const CR30NET = array('count' => 30, 'name' => '30 Jours NET');
@@ -21,14 +27,23 @@ class ConditionReglementService extends DateTime
     /** CR60NET => Condition de règlement 60 Jours calendaires  */
     const CR60NET = array('count' => 60, 'name' => '60 Jours NET');
 
+    /** CR20FDM => Condition de règlement 20 Jours NET puis calcul de la fin de mois  */
+    const CR20FDM = array('count' => 20, 'name' => '20 Jours Fin de mois');
+
     /** CR30FDM => Condition de règlement 30 Jours NET puis calcul de la fin de mois  */
     const CR30FDM = array('count' => 30, 'name' => '30 Jours Fin de mois');
 
     /** CR45FDM => Condition de règlement 45 Jours puis calcul de la fin de mois  */
     const CR45FDM = array('count' => 45, 'name' => '45 Jours Fin de mois');
 
+    /** CR20FDM10 => Condition de règlement 20 Jours  puis calcul de la fin de mois au prochain 10 du mois  */
+    const CR20FDM10= array('count' => 20, 'name' => '20 Jours Fin de mois le 10', 'dayEndMonth' => 10);
+
     /** CR30FDM10 => Condition de règlement 30 Jours puis calcul de la fin de mois au prochain 10 du mois  */
     const CR30FDM10 = array('count' => 30, 'name' => '30 Jours Fin de mois le 10', 'dayEndMonth' => 10);
+
+    /** CR20FDM15 => Condition de règlement 20 Jours  puis calcul de la fin de mois au prochain 15 du mois  */
+    const CR20FDM15 = array('count' => 20, 'name' => '20 Jours Fin de mois le 15', 'dayEndMonth' => 15);
 
     /** CR30FDM15 => Condition de règlement 30 Jours  puis calcul de la fin de mois au prochain 15 du mois  */
     const CR30FDM15 = array('count' => 30, 'name' => '30 Jours Fin de mois le 15', 'dayEndMonth' => 15);
@@ -83,15 +98,15 @@ class ConditionReglementService extends DateTime
 
         if(!$this->validateDate($date)) {
 
-            if(preg_match('/^\\d{4}-\d{2}-\d{2}/',$date)) // Si la date est au bon format XXXX-XX-XX
+            if(preg_match('/^\\d{4}-\d{2}-\d{2}/',$date))           // Si la date est au bon format XXXX-XX-XX
             {
                 return ['error' => 'La date saisie n\'existe pas'];
             }
 
-            return ['error' => 'Date invalide, format accepté : YYYY-MM-DD / Exemple 2023-05-13']; // Sinon retour le message d'erreur lié au format
+            return ['error' => 'Date invalide, format accepté : YYYY-MM-DD / Exemple 2023-05-13'];       // Sinon retour le message d'erreur lié au format
         }
         if(!$this->checkCondition($condition)) {
-            return ['error' => 'La condition de règlement n\'existe pas'];
+            return ['error' => "La condition de règlement n'existe pas"];
         }
         if (!$this->getNbJourOfConst($condition)){
             return ['error' => 'La constante condition de règlement n\'a pas de nombre de jours de délai renseigné dans la constante'];
@@ -219,18 +234,28 @@ class ConditionReglementService extends DateTime
     public function getNbJourOfConst(string $condition): int|string
     {
         switch ($condition) {
+            case 'CR10NET' :
+                return ConditionReglementService::CR10NET['count'];
             case 'CR15NET' :
                 return ConditionReglementService::CR15NET['count'];
+            case 'CR20NET' :
+                return ConditionReglementService::CR20NET['count'];
             case 'CR30NET' :
                 return ConditionReglementService::CR30NET['count'];
             case 'CR45NET' :
                 return ConditionReglementService::CR45NET['count'];
             case 'CR60NET' :
                 return ConditionReglementService::CR60NET['count'];
+            case 'CR20FDM' :
+                return ConditionReglementService::CR20FDM['count'];
             case 'CR30FDM' :
                 return ConditionReglementService::CR30FDM['count'];
             case 'CR30FDM10' :
                 return ConditionReglementService::CR30FDM10['count'];
+            case 'CR20FDM10' :
+                return ConditionReglementService::CR20FDM10['count'];
+            case 'CR20FDM15' :
+                return ConditionReglementService::CR20FDM15['count'];
             case 'CR30FDM15' :
                 return ConditionReglementService::CR30FDM15['count'];
             case 'CR30FDM20' :
@@ -265,7 +290,54 @@ class ConditionReglementService extends DateTime
                 return 'Il n\'y a pas de date de fin de mois spécifique à la condition de règlement' ;
         }
     }
+    /**
+     * @return mixed
+     */
 
+ /*   public function getAllConstant(){
+        $reflect = new \ReflectionClass(get_class($this));
+        return $reflect->getConstants();
+
+    }
+ */
+    /**
+     * Récupère un tableau avec l'ensemble des constantes de la class
+     * @return array
+     */
+    public function getAllConstant():array
+    {
+        $class = new \ReflectionClass($this);
+        $constants = $class->getConstants();
+        $filteredConstants = [];
+
+        foreach ($constants as $name => $value) {
+            $declaringClass = $class->getReflectionConstant($name)->getDeclaringClass();
+            if ($declaringClass->getName() === $class->getName()) {
+                $filteredConstants[$name] = $value;
+            }
+        }
+        return $filteredConstants;
+
+    }
+
+    /**
+     * Retourne le nom de la constante en fonction de la key 'name'
+     * @param string $name
+     * @return array
+     */
+ /*   public function getConstantByName(string $name)
+    {
+        $constants = $this->getAllConstant();
+        foreach ($constants as $key=>$constant) {
+          //  if (in_array($name, $constant, true)) {
+
+                return $constant;
+            }
+
+
+        return null;
+    }
+*/
 }
 
 
