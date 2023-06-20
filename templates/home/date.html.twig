@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello HomeController!{% endblock %}
+
+{% block body %}
+    <style>
+        .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+        .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+    </style>
+
+    {% include '/utils/header.html.twig' %}
+
+    <div class="example-wrapper">
+    <h1>Calcul délai de règlement</h1>
+    <img src="https://media.istockphoto.com/id/1242889583/fr/photo/calculatrice-de-base-sur-la-table.jpg?s=612x612&w=0&k=20&c=2MJQtDNMVRe65-BaZzZAlxXs2o24HqU8Fb_qWgbMO8I=" alt="calculatrice">
+    <div class="form-group">
+        <label class="col-form-label ml-4 mt-4" for="inputDefault">Date de facture</label>
+        <input type="date"  class="form-control" placeholder="Date de facture" id="inputdate" value="{{ inputdate ?? '' }}">
+    </div>
+
+    <div class="form-group">
+        <label for="exampleSelect1" class="form-label mt-4 ml-4">Conditions de réglement</label>
+        <select type='text' class="form-select" id="exampleSelect1" >
+            <option value="">Choississez le délai de règlement</option>
+            {% for key, constantNameArray in constantList %}
+                {% if constantNameArray.name is defined %}
+                    <option value="{{ key }}" {% if exampleSelect1 == key %}selected{% endif %}>{{ constantNameArray.name }}</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary mb-4 ml-4 mt-4" aria-label="">Calculer</button>
+    <div class="form-group">
+        <fieldset>
+            <label class="form-label mt-4" for="readOnlyInput">Date d'échéance</label>
+
+            <input class="form-control" id="dateEcheance" type="text" placeholder="Date d'échéance" readonly
+                   value = {% if dateEnd is not null and error is not null %}
+                       {{ dateEnd|date('d/m/Y') }}
+                   {% else %}
+                   {% endif %}
+            >
+        </fieldset>
+    </div>
+    {% if error != false %}
+        <script>
+            window.alert('{{ error['error']}}')
+        </script>
+    {% endif %}
+
+    <script src="{{ asset('script2.js') }}"></script>
+
+
+
+{% endblock %}

@@ -48,6 +48,9 @@ class ConditionReglementService extends DateTime
     /** CR30FDM15 => Condition de règlement 30 Jours  puis calcul de la fin de mois au prochain 15 du mois  */
     const CR30FDM15 = array('count' => 30, 'name' => '30 Jours Fin de mois le 15', 'dayEndMonth' => 15);
 
+    /** CR20FDM20 => Condition de règlement 20 Jours NET puis calcul de la fin de mois au prochain 20 du mois  */
+    const CR20FDM20 = array('count' => 20, 'name' => '20 Jours Fin de mois le 20', 'dayEndMonth' => 20);
+
     /** CR30FDM20 => Condition de règlement 30 Jours NET puis calcul de la fin de mois au prochain 20 du mois  */
     const CR30FDM20 = array('count' => 30, 'name' => '30 Jours Fin de mois le 20', 'dayEndMonth' => 20);
 
@@ -83,7 +86,6 @@ class ConditionReglementService extends DateTime
         if (defined('self::'.$condition)){
             return true;
         }
-
         return false;
     }
 
@@ -98,7 +100,7 @@ class ConditionReglementService extends DateTime
 
         if(!$this->validateDate($date)) {
 
-            if(preg_match('/^\\d{4}-\d{2}-\d{2}/',$date))           // Si la date est au bon format XXXX-XX-XX
+            if(preg_match('/^\\d{4}-\d{2}-\d{2}$/',$date))           // Si la date est au bon format XXXX-XX-XX
             {
                 return ['error' => 'La date saisie n\'existe pas'];
             }
@@ -106,7 +108,7 @@ class ConditionReglementService extends DateTime
             return ['error' => 'Date invalide, format accepté : YYYY-MM-DD / Exemple 2023-05-13'];       // Sinon retour le message d'erreur lié au format
         }
         if(!$this->checkCondition($condition)) {
-            return ['error' => "La condition de règlement n'existe pas"];
+            return ['error' => 'La condition de règlement n\'existe pas'];
         }
         if (!$this->getNbJourOfConst($condition)){
             return ['error' => 'La constante condition de règlement n\'a pas de nombre de jours de délai renseigné dans la constante'];
@@ -127,14 +129,13 @@ class ConditionReglementService extends DateTime
     public function getDateEnd(string $date, string $condition): array|DateTime|bool
     {
         $error = $this->checkIfError($date, $condition);   // Vérifie si les données saisies par l'utilisateur sont valides
-        if ($error){
-            return $error;     // Si une erreur est retournée alors
+        if ($error){                // Si une erreur est retournée alors
+            return $error;
         }
         $conditionReglement = $condition;   // pour conserver la variable $condition d'origine pour critères de selection
         $condition = $this->getNbJourOfConst($condition);  // pour récupérer le nombre de jours compris dans le délai
         $lastDay = $this->getDayEndMonthConst($conditionReglement);  // Pour récupérer la date de fin de mois spécifique si existante
         $date = new DateTime($date);
-        dump($date);
 
         /**
          *  Si la condition de réglement commence par 'FDM',
@@ -282,10 +283,18 @@ class ConditionReglementService extends DateTime
     {
         switch ($condition)
         {
+            case 'CR20FDM10' :
+                return ConditionReglementService::CR20FDM10['dayEndMonth'];
+            case 'CR20FDM15' :
+                return ConditionReglementService::CR20FDM15['dayEndMonth'];
+            case 'CR20FDM20' :
+                return ConditionReglementService::CR20FDM20['dayEndMonth'];
             case 'CR30FDM10' :
                 return ConditionReglementService::CR30FDM10['dayEndMonth'];
             case 'CR30FDM15' :
                 return ConditionReglementService::CR30FDM15['dayEndMonth'];
+            case 'CR30FDM20' :
+                return ConditionReglementService::CR30FDM20['dayEndMonth'];
             default:
                 return 'Il n\'y a pas de date de fin de mois spécifique à la condition de règlement' ;
         }
