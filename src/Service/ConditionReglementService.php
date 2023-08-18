@@ -4,7 +4,7 @@ namespace App\Service;
 
 use DateTime;
 use Exception;
-
+use function Symfony\Component\Translation\t;
 
 
 class ConditionReglementService extends DateTime
@@ -54,6 +54,12 @@ class ConditionReglementService extends DateTime
     /** CR30FDM20 => Condition de règlement 30 Jours NET puis calcul de la fin de mois au prochain 20 du mois  */
     const CR30FDM20 = array('count' => 30, 'name' => '30 Jours Fin de mois le 20', 'dayEndMonth' => 20);
 
+    /** CR15FDQ => Condition de règlement 15 Jours NET puis calcul de la fin de la prochaine quinzaine  */
+    const CR15FDQ = array('count' => 15, 'name' => '15 Jours Fin de quinzaine');
+
+    /** CR30FDQ => Condition de règlement 30 Jours NET puis calcul de la fin de la prochaine quinzaine  */
+    const CR30FDQ = array('count' => 30, 'name' => '30 Jours Fin de quinzaine');
+
     /** FDM15 => Condition de règlement calcul à partir de la fin du mois civil + 15 Jours  */
     const FDM15 = array('count' => 15, 'name' => 'Fin de mois 15 Jours');
 
@@ -62,6 +68,7 @@ class ConditionReglementService extends DateTime
 
     /** FDM45 => Condition de règlement calcul à partir de la fin du mois civil + 45 Jours  */
     const FDM45 = array('count'=> 45, 'name' => 'Fin de mois 45 Jours');
+
 
     /**
      * Retourne true ou false si la date existe
@@ -110,12 +117,6 @@ class ConditionReglementService extends DateTime
         if(!$this->checkCondition($condition)) {
             return ['error' => 'La condition de règlement n\'existe pas'];
         }
-        if (!$this->getNbJourOfConst($condition)){
-            return ['error' => 'La constante condition de règlement n\'a pas de nombre de jours de délai renseigné dans la constante'];
-        }
-        if (!$this->getDayEndMonthConst($condition)){
-            return ['error' => 'La constante condition de règlement n\'a pas de jour de fin de mois de renseignée'];
-        }
         return false;
     }
 
@@ -129,7 +130,7 @@ class ConditionReglementService extends DateTime
     public function getDateEnd(string $date, string $condition): array|DateTime|bool
     {
         $error = $this->checkIfError($date, $condition);   // Vérifie si les données saisies par l'utilisateur sont valides
-        if ($error){                // Si une erreur est retournée alors
+        if ($error) {                // Si une erreur est retournée alors
             return $error;
         }
         $conditionReglement = $condition;   // pour conserver la variable $condition d'origine pour critères de selection
@@ -143,7 +144,7 @@ class ConditionReglementService extends DateTime
          */
         if (str_starts_with($conditionReglement, 'FDM')) {
             $date = new DateTime($date->format('Y-m-t'));
-            return $this->addDays($date, $condition,$conditionReglement);
+            return $this->addDays($date, $condition, $conditionReglement);
         }
 
         /**
@@ -152,7 +153,7 @@ class ConditionReglementService extends DateTime
          */
 
         if (preg_match('/CR\d{1,2}FDM/', $conditionReglement)) {
-            $date = $this->addDays($date, $condition,$conditionReglement);
+            $date = $this->addDays($date, $condition, $conditionReglement);
 
             if (isset($lastDay) && (!preg_match('/CR\d{1,2}FDM\b/', $conditionReglement))) // Si la date de FDM est != du mois civil
             {
@@ -170,9 +171,17 @@ class ConditionReglementService extends DateTime
         {
             return $this->addDays($date, $condition, $conditionReglement);
         }
+
+        /**
+         * Si la condition de réglement contient 'FDQ' avec un calcul de 'Fin de quinzaine'
+         */
+        if (preg_match('/CR\S{2}FDQ/', $conditionReglement)) {
+            $date = $this->addDays($date, $condition, $conditionReglement);
+            return $this->calcDayOfEndFifteen($date);
+
+        }
         return $date;
     }
-
 
     /**
      * Détermine la date de fin de mois ( mois civil ou fin de mois spécifique) selon
@@ -183,7 +192,7 @@ class ConditionReglementService extends DateTime
     public function calcDayOfEndMonth(DateTime $date, $lastDay): DateTime
     {
         $checkDateEndOfMonth = new DateTime($date->format('Y-m-'.$lastDay));
-        if ($checkDateEndOfMonth >= $date) {    //  si la date de fin de mois de la condition de règlement sur le mois en cours n'est pas passée
+        if ($checkDateEndOfMonth >= $date) {  //  si la date de fin de mois de la condition de règlement sur le mois en cours n'est pas passée
             $date = $checkDateEndOfMonth;    // alors la date de base de calcul = jour de FDM de la condition sur le mois du document
         } else {
             $date = new DateTime($checkDateEndOfMonth->format('Y-m-d'));
@@ -191,6 +200,18 @@ class ConditionReglementService extends DateTime
         }
         return $date;
     }
+
+    public function calcDayOfEndFifteen(DateTime $date): DateTime
+    {
+        $checkDateEndOfMidmonth = new DateTime($date->format('Y-m-'.'15'));
+        if($date<=$checkDateEndOfMidmonth){
+            $date = $checkDateEndOfMidmonth;
+        }else{
+            $date = new DateTime($date->format('Y-m-t'));
+        }
+        return  $date;
+    }
+
 
     /**
      * Ajoute des jours à une date
@@ -200,15 +221,18 @@ class ConditionReglementService extends DateTime
      * @return DateTime
      * @throws Exception
      */
-    public function addDays(DateTime $date, int $condition, string $conditionReglement): DateTime
+    public function addDays(DateTime $date, string $condition, string $conditionReglement): DateTime
     {
+        //TODO Vérifier que l'ajout de la condition preg_match('/CR\S{2}FDQ/) à la boucle while n'impacte pas le cas FDM XX Jours
         /**
          *  Ajoute le nombre
          *  un délai de 30 Jours correspond à 1 mois sauf pour les conditions de règlement en Jours NET et XX Jours FDM
          *  pour gestion de la différence de nbre de jours dans un mois notamment le mois de février
          *
          */
-        while($condition >= 30 &&  (!preg_match('/CR\S{2}NET/',$conditionReglement)) && (preg_match('/CR\S{2}FDM/',$conditionReglement)))
+        while($condition >= 30 &&
+            ( (preg_match('/CR\S{2}FDM/',$conditionReglement)) || (preg_match('/CR\S{2}FDQ/',$conditionReglement)) )
+        )
         {
             $start_day = $date->format('j');
             $date->modify('+1 month');  // ajout d'un mois
@@ -218,12 +242,34 @@ class ConditionReglementService extends DateTime
             if ($start_day != $end_day) {
 
                 $date->modify('last day of previous month');  // Alors on ajuste la date en fixant le jour au dernier jour du mois précédent
+
             }
             $condition -= 30;  // On soustrait les 30 jours correspondant au mois du délai pour ajout du complément de jours uniquement
         }
 
-        $date->add(new \DateInterval('P' . $condition . 'D'));
+        /**
+         * Condition pour calcul du délai de paiement pour 15 jours fin de quinzaine
+         * si le jour de la date compris entre le 1 et le 15 => retourne le dernier jour du mois
+         * sinon si > à 15 retourne le 15 du mois suivant
+         */
+
+        if((preg_match('/CR\S{2}FDQ/',$conditionReglement)) && $condition == 15 )
+        {
+            $start_day=$date->format('j');   // retourne le numéro de jour de la date
+
+            if($start_day<=15){
+                $date->modify('last day of this month');
+            }else{
+                $date->modify('first day of next month');
+                $date->modify('+14 days');
+            }
+
+        }else{
+
+            $date->add(new \DateInterval('P' . $condition . 'D'));
+        }
         return $date;
+
     }
 
 
@@ -257,6 +303,8 @@ class ConditionReglementService extends DateTime
                 return ConditionReglementService::CR20FDM10['count'];
             case 'CR20FDM15' :
                 return ConditionReglementService::CR20FDM15['count'];
+            case 'CR20FDM20' :
+                return ConditionReglementService::CR20FDM20['count'];
             case 'CR30FDM15' :
                 return ConditionReglementService::CR30FDM15['count'];
             case 'CR30FDM20' :
@@ -269,6 +317,10 @@ class ConditionReglementService extends DateTime
                 return ConditionReglementService::FDM30['count'];
             case 'FDM45' :
                 return ConditionReglementService::FDM45['count'];
+            case 'CR15FDQ' :
+                return ConditionReglementService::CR15FDQ['count'];
+            case 'CR30FDQ' :
+                return ConditionReglementService::CR30FDQ['count'];
             default:
                 return ' La condition de règlement n\'existe pas';
         }

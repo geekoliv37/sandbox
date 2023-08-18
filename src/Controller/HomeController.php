@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Service\AutoliquidationTvaService;
 use App\Service\ConditionReglementService;
+use App\Service\EscompteService;
 use JetBrains\PhpStorm\NoReturn;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -92,6 +94,23 @@ class HomeController extends AbstractController
     }
 
     /**
+     * @param AutoliquidationTvaService $autoliquidationTvaService
+     * @param Request $request
+     * @return Response
+     */
+    #[NoReturn] #[Route('/tva', name: 'tva', methods: ['GET','POST'])]
+    public function autoliquidationTva(AutoliquidationTvaService $autoliquidationTvaService, Request $request): Response
+    {
+        $case= $request->query->get('case');
+        $price= $request->query->get('montant');
+        $tvaValue = $autoliquidationTvaService->calculTva($case, $price);
+        return $this->render('home/tva.html.twig', [
+            'controller_name' => 'HomeController',
+
+        ]);
+
+    }
+    /**
      * @param ConditionReglementService $conditionReglementService
      * @param Request $request
      * @return Response
@@ -121,7 +140,16 @@ class HomeController extends AbstractController
 
         return $response;
     }
+    #[NoReturn] #[Route('/escompte', name: 'escompte', methods: ['GET','POST'])]
+    public function escompte( EscompteService $escompteService, Request $request): Response
+    {
 
+
+        return $this->render('home/escompte.html.twig', [
+            'controller_name' => 'HomeController',
+
+        ]);
+    }
 
 
 }

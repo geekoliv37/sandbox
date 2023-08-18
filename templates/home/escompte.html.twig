@@ -1,0 +1,28 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello HomeController!{% endblock %}
+
+{% block body %}
+    <style>
+        .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+        .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+    </style>
+
+    {% include '/utils/header.html.twig' %}
+
+    <div class="example-wrapper">
+    <h1>Calcul du net à payer avec escompte</h1>
+    <img class="w-auto p-3" src="https://media.istockphoto.com/id/1203763961/fr/photo/cartes-de-cr%C3%A9dit-empil%C3%A9es.jpg?s=612x612&w=0&k=20&c=qqCjuckP1WaR67tUvfzajsYOXCn2bYK_UhUMFN6xZJI=" alt="tva">
+    <div class="form-group">
+        <label class="col-form-label ml-4 mt-4" for="inputDefault">Date de facture</label>
+        <input type="date"  class="form-control" placeholder="Date de facture" id="inputdate" value="">
+        <label class="col-form-label ml-4 mt-4" for="inputDefault">Montant HT de la facture</label>
+        <input class="form-control" placeholder="Montant HT de la facture" id="inputdate" value="">
+        <label class="col-form-label ml-8 mt-4" for="inputDefault">Délai escompte 1</label>
+        <input type="text"  class="form-control" placeholder="Délai escompte 1" id="inputdate" value="" name="value1">
+        <label class="col-form-label ml-8 mt-4" for="inputDefault">taux escompte 1</label>
+        <input type="text"  class="form-control" placeholder="Taux escompte 1" id="" value="" name="value2">
+        <label class="col-form-label ml-8 mt-4" for="inputDefault">Date limite escompte 1</label>
+        <input type="text"  class="form-control" placeholder="Date limite escompte 1" id="limitDate1" value="" readonly>
+    </div>
+{%  endblock %}

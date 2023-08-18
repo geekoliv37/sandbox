@@ -1,0 +1,25 @@
+[16-Aug-2023 13:03:51 UTC] PHP Warning:  require_once(/home/lebert/vendor/autoload_runtime.php): Failed to open stream: No such file or directory in /home/lebert/sandbox.lebert.cefim.o2switch.site/index.php on line 5
+[16-Aug-2023 13:03:51 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/lebert/vendor/autoload_runtime.php' (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/lebert/sandbox.lebert.cefim.o2switch.site/index.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/lebert/sandbox.lebert.cefim.o2switch.site/index.php on line 5
+[16-Aug-2023 13:04:04 UTC] PHP Warning:  require_once(/home/lebert/vendor/autoload_runtime.php): Failed to open stream: No such file or directory in /home/lebert/sandbox.lebert.cefim.o2switch.site/index.php on line 5
+[16-Aug-2023 13:04:04 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/lebert/vendor/autoload_runtime.php' (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/lebert/sandbox.lebert.cefim.o2switch.site/index.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/lebert/sandbox.lebert.cefim.o2switch.site/index.php on line 5
+[16-Aug-2023 13:28:02 UTC] PHP Warning:  require_once(/home/lebert/vendor/autoload_runtime.php): Failed to open stream: No such file or directory in /home/lebert/sandbox.lebert.cefim.o2switch.site/index.php on line 5
+[16-Aug-2023 13:28:02 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/lebert/vendor/autoload_runtime.php' (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/lebert/sandbox.lebert.cefim.o2switch.site/index.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/lebert/sandbox.lebert.cefim.o2switch.site/index.php on line 5
+[16-Aug-2023 13:51:18 UTC] PHP Warning:  require_once(/home/lebert/vendor/autoload_runtime.php): Failed to open stream: No such file or directory in /home/lebert/sandbox.lebert.cefim.o2switch.site/index.php on line 5
+[16-Aug-2023 13:51:18 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/lebert/vendor/autoload_runtime.php' (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/lebert/sandbox.lebert.cefim.o2switch.site/index.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/lebert/sandbox.lebert.cefim.o2switch.site/index.php on line 5
+[16-Aug-2023 14:06:56 UTC] PHP Warning:  require_once(/home/lebert/vendor/autoload_runtime.php): Failed to open stream: No such file or directory in /home/lebert/sandbox.lebert.cefim.o2switch.site/index.php on line 5
+[16-Aug-2023 14:06:56 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/lebert/vendor/autoload_runtime.php' (include_path='.:/opt/alt/php80/usr/share/pear:/opt/alt/php80/usr/share/php:/usr/share/pear:/usr/share/php') in /home/lebert/sandbox.lebert.cefim.o2switch.site/index.php:5
+Stack trace:
+#0 {main}
+  thrown in /home/lebert/sandbox.lebert.cefim.o2switch.site/index.php on line 5
